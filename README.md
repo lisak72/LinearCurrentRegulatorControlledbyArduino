@@ -1,7 +1,7 @@
 # LinearCurrentRegulatorControlledbyArduino
 Linear current regulator for controlling leds controlled by arduino nano
 not pwm, fully linear regulation, no pulses, waves etc. in light
-working with cooperation with second arduino - connected on pins LLp, MLp, HLp
+working in cooperation with second arduino - connected on pins LLp, MLp, HLp
 
 part of my bachelor thesis, details can be founded here
 
