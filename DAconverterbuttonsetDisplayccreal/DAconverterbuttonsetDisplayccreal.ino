@@ -222,18 +222,18 @@ bool storeEE(word ll, word ml, word hl, word ch){
   return ret;
 }
 
-//vypocet proudu podle hodnot stanovenych merenim
+//calculation of current by measured values
 float cc(word das, word ch){  
   if(ch==1) return((0.02895*das));
   if(ch==2) return((0.1091*das));
   if(ch==3) return((0.2433*das));
 }
 
-//vypocet proudu podle hodnoty napeti odecteneho na rezistorech
-//prvni parametr je jen kvuli kompatibilite v programu, druhy cislo kanalu
+//calculation of current in depend of voltage measured on resistors
+//first parameter is only for compatibility (is not used), second is channel number
 float ccreal(word ar, word ch){  
   unsigned int rd=0;
-  for(byte i=0; i<10; i++){
+  for(byte i=0; i<10; i++){  //average
     rd=rd+analogRead(A0);
   }
   rd=rd/10;
@@ -252,27 +252,27 @@ void loop() {
   initialSetting();
   delay(1000);
   
-  //cteni EEPROM pouze jednou (asi neni nutne)
+  //reading EEPROM only once 
 if(alreadyReaded==0){
 LL=readEEw(0);
 ML=readEEw(2);
 HL=readEEw(4);
 chan=readEEw(6);
-  if(chan>3 || chan<1){ writeEEw(6,1); panic();} //prvni pruchod na novem Arduinu nebo chyba
+  if(chan>3 || chan<1){ writeEEw(6,1); panic();} //first pass on new arduino (with no values written in EEPROM)
 alreadyReaded=1;
 wd3("LL: "+String(LL)+"  CH:"+String(chan),"ML: "+String(ML), "HL: "+String(HL));
 }
 delay(5000);
 wd("press for setup");
 BlinkInternalLed(10);
-//obe tlacitka stisknuta - vyvola reset a nastavovani cisla kanalu
+//both buttons pressed - initiate reset and set channel number
  if((!(digitalRead(SW2)))&&(!(digitalRead(SW1)))) { 
-                SetI(25);  //nothing dangerous
+                SetI(25);  //nothing dangerous - safe low current for settings
                 chan=1;
                 BlinkInternalLedShort(10);
                 lasttime=millis();
                 while((millis()-lasttime)<15000){
-                //nastavovani - bezi 5s pokud neni upraveno lasttime
+                //settings - take 5s if lasttime not changed
                 if((increase()==1)&&(chan<3)) chan++;
                 if((increase()==-1)&&(chan>1)) chan--;                
                           if(chan==1) digitalWrite(CH1,HIGH);
@@ -287,27 +287,27 @@ BlinkInternalLed(10);
                             } 
                 LL=0; ML=0; HL=0;
                 resetStarted=1;
-                }   //konec nastavování kanalu
+                }   //end of channel choosing
                 
   initialSetting();
-    //nastaveni kanalu
+    //choose channel
     if(chan==1) chs=CH1;
     if(chan==2) chs=CH2;
     if(chan==3) chs=CH3;
     //for safe
     if(chan!=1 && chan!=2 && chan!=3) chs=CH1;
-    digitalWrite(chs,HIGH);  //aktivace vybraneho kanalu
-  //nastavovani urovni tlacitky
+    digitalWrite(chs,HIGH);  //activation of choosed channel
+  
 
 
 
-digitalWrite(chs,HIGH);  //aktivace vybraneho kanalu
+digitalWrite(chs,HIGH);  //activation of choosed channel
 
-if((!(digitalRead(SW2))) || resetStarted){//kdyz stisknuto SW2 pri startu 
+if((!(digitalRead(SW2))) || resetStarted){//if SW2 pressed while starting 
   BlinkInternalLed(1);
   lasttime=millis();
   while((millis()-lasttime)<15000){
-    //nastavovani - bezi 15s pokud neni upraveno lasttime
+    //settings - take 15s if lasttime was not changed
     if((increase()==1)&&(LL<4094)) LL++;
     if((increase()==-1)&&(LL>0)) LL--;
     SetI(LL);
@@ -317,7 +317,7 @@ if((!(digitalRead(SW2))) || resetStarted){//kdyz stisknuto SW2 pri startu
    BlinkInternalLed(2);
    lasttime=millis();
   while((millis()-lasttime)<15000){
-    //nastavovani - bezi 15s pokud neni upraveno lasttime
+    //settings - take 15s if lasttime was not changed
     if((increase()==1)&&(ML<4094)) ML++;
     if((increase()==-1)&&(ML>0)) ML--;
     SetI(ML);
@@ -327,7 +327,7 @@ if((!(digitalRead(SW2))) || resetStarted){//kdyz stisknuto SW2 pri startu
    BlinkInternalLed(3);
    lasttime=millis();
   while((millis()-lasttime)<15000){
-    //nastavovani - bezi 15s pokud neni upraveno lasttime
+    //settings - take 15s if lasttime was not changed
     if((increase()==1)&&(HL<4094)) HL++;
     if((increase()==-1)&&(HL>0)) HL--;
     SetI(HL);
@@ -336,7 +336,7 @@ if((!(digitalRead(SW2))) || resetStarted){//kdyz stisknuto SW2 pri startu
   }
   BlinkInternalLed(5);
   
-while(digitalRead(SW2)){ //prepina nastavene hodnoty, dokud neni stisknuto tl 2
+while(digitalRead(SW2)){ //changing set values, while sw2 not pressed
 BlinkInternalLed(2);
 SetI(LL);  
 delay(500);
@@ -355,8 +355,8 @@ digitalWrite(LED,LOW);
 }     //END SETTINGS
 SetI(0);
 wd("MAIN LOOP");
-digitalWrite(A1, HIGH); //signal pro start Synchronizacniho mikroprocesoru (Gabor)
-for(;;){ //hlavni cyklus
+digitalWrite(A1, HIGH); //signal for start Synchronization microprocesor (Gabor, Arduino num. 2)
+for(;;){ //main loop
 if(digitalRead(MLp)) SetI(ML);
   else if(digitalRead(HLp)) SetI(HL);
         else if(digitalRead(LLp)) SetI(LL);
