@@ -1,39 +1,40 @@
 //DA MCP4921               
-//A4, A5 pouzity pro twi 
+//A4, A5 used for twi 
 //v.20170325
+//transl 01
 
-//SPI - ovladani MCP4921
-// pin připojen na CS (2)
+//SPI - controlling MCP4921
+// pin connected to CS (2)
 byte latchPin = 10;
 // SCK 
 byte clockPin = 13;
-//Pin připojen na SDI data pin (4)
-// MOSI na arduinu
+//Pin connected to SDI data pin (4)
+// MOSI on arduino
 byte dataPin = 11;
 
-//TWI twi komunikace s displejem
+//TWI twi communication with display
 // twiPinTX=A4;
 // twiPinCLK=A5;
 
-//piny pro cteni nastavene urovne
+//pins for reading setting level (3 levels can be set)
 byte LLp=7;
 byte MLp=8;
 byte HLp=12;
 
-//diagnosticka LED pin
+//diagnostic LED pin
 byte LED=9;
 
-//piny spinajici jednotlive kanaly
+//pins for switching individual channel (transistors)
 // CH1 0-125mA, CH2 up to 0.5A, CH3 up to 1A
 byte CH1=4;
 byte CH2=5;
 byte CH3=6;
 
-//tlacitka
-byte SW1=2; //leve tlacitko
-byte SW2=3; //prave tlacitko
+//buttons
+byte SW1=2; //left button
+byte SW2=3; //right button
 
-//pin A0 - mereni ubytku na rezistorech
+//pin A0 - measuring loss on resistors - for compute real value of current
 // fedbackPin=A0
 
 volatile unsigned long lastint=0, lasttime=0, presstime=0;
@@ -43,7 +44,7 @@ volatile unsigned long lastint=0, lasttime=0, presstime=0;
 #include <EEPROM.h>
 #include "U8glib.h"
 
-//definice pro displej
+//definition for display (U8glib library)
 U8GLIB_SSD1306_128X64 u8g(U8G_I2C_OPT_NO_ACK);
 
 void setup() {
@@ -63,9 +64,9 @@ void setup() {
 
 SPI.beginTransaction(SPISettings(20000000, MSBFIRST,SPI_MODE0));
 SPI.begin();
-}  //konec setupu
+}  //end of setup
 
-//odeslani jednoho radku na displej
+//sending one line to display
 void displ(String st) 
 {
   u8g.setFont(u8g_font_7x14);
@@ -74,7 +75,7 @@ void displ(String st)
   u8g.print(st);
 }
 
-//odeslani 3 radku na displej
+//sending 3 lines to display
 void displ3(String st1, String st2, String st3){
   u8g.setFont(u8g_font_7x14);
   u8g.setPrintPos(0, 20); 
@@ -85,7 +86,7 @@ void displ3(String st1, String st2, String st3){
   u8g.print(st3);
 }
 
-//zobrazovani 1 radku na displeji
+//show 1 line on display
 void wd(String str){
   u8g.firstPage();  
   do {
@@ -93,7 +94,7 @@ void wd(String str){
   } while( u8g.nextPage() );
 }
 
-//zobrazovani 3 radku na displeji
+//show 3 lines on display
 void wd3(String str1,String str2, String str3 ){
   u8g.firstPage();  
   do {
@@ -101,7 +102,7 @@ void wd3(String str1,String str2, String str3 ){
   } while( u8g.nextPage() );
 }
 
-//nastaveni hardwaru po spusteni
+//initial settings of harware after startup
 void initialSetting(){
   digitalWrite(CH1, LOW);
   digitalWrite(CH2, LOW);
@@ -110,7 +111,7 @@ void initialSetting(){
   SetI(0);
 }
 
-//zapis hodnoty na DA prevodnik
+//write value to DA converter
 void WriteConverter(int eb){  // SPI
   word bitint=(word)eb;
   byte data;
@@ -363,5 +364,3 @@ if(digitalRead(MLp)) SetI(ML);
 }
 
 } 
-
-
