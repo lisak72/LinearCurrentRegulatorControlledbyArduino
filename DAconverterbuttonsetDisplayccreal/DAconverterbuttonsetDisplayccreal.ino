@@ -122,14 +122,14 @@ void WriteConverter(int eb){  // SPI
   SPI.transfer(lowByte(bitint));
 }
 
-//aktivace hodnoty na DA prevodniku
+//aply value on DA converter
 void Apply(){
   digitalWrite(latchPin, HIGH); 
   digitalWrite(latchPin, LOW);     
 }
 
-//odeslani hodnoty na DA a aktivace
-void SetI(int lvl){  //nastavi hodnotu DAC
+//send value to DA converter and activate (apply) it
+void SetI(int lvl){  
   WriteConverter(lvl);
   Apply();
 }
@@ -144,7 +144,7 @@ void BlinkInternalLed(int pocet){
   }
 }
 
-//neresitelna zavazna chyba
+//signalling panic state
 void panic(){ //panic
   wd("PANIC");
   for(;;){
@@ -163,7 +163,7 @@ void ledoff(){
   digitalWrite(LED, LOW);
 }
 
-//rychle blikani diagnostickou ledkou
+//rapidly blinking diagnostic led
 void BlinkInternalLedShort(int pocet){
   for(int i=0; i<pocet; i++){
   digitalWrite(LED, HIGH);
@@ -173,7 +173,7 @@ void BlinkInternalLedShort(int pocet){
   }
 }
 
-//vypnuti vystupu
+//switch off output
 void allDown(){
   digitalWrite(CH1,LOW);
   digitalWrite(CH2,LOW);
@@ -181,7 +181,7 @@ void allDown(){
   SetI(0);
 }
 
-//nastavovani hodnot pomoci tlacitek
+//setting values by buttons
 short increase(){ //return 0 (nothing or both pressed) or 1 (SW2 pressed) or -1 (SW1 pressed)
    if((!(digitalRead(SW2)))&&(!(digitalRead(SW1)))) {lasttime=millis(); return 0;} //error both pressed
     if(!(digitalRead(SW2))) {
@@ -196,7 +196,7 @@ short increase(){ //return 0 (nothing or both pressed) or 1 (SW2 pressed) or -1 
   return 0;
 }
   
-//zapis do EEPROM, vraci 1 kdyz ok
+//write to EEPROM, return 1 if ok
 bool writeEEw(byte pos, word val){ //pos must be even-numbered (need 2 bytes)
   if(pos%2!=0) return 0;
   EEPROM.update(pos,(byte)val); 
@@ -205,14 +205,14 @@ bool writeEEw(byte pos, word val){ //pos must be even-numbered (need 2 bytes)
   return 1;
 }
 
-//cteni z EEPROM
+//read from EEPROM
 word readEEw(byte pos){
   word eew;
   eew=((EEPROM.read(pos)) + ((EEPROM.read(pos+1)) << 8));
   if(eew<4096) return eew;
 }
 
-//zapis tri hodnot a cisla kanalu do EEPROM
+//write all 3 values and channel number to EEPROM
 bool storeEE(word ll, word ml, word hl, word ch){
   bool ret;
   ret=writeEEw(0,ll);
