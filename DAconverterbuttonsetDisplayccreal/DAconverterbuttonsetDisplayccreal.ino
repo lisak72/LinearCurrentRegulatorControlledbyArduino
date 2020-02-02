@@ -265,7 +265,7 @@ wd3("LL: "+String(LL)+"  CH:"+String(chan),"ML: "+String(ML), "HL: "+String(HL))
 delay(5000);
 wd("press for setup");
 BlinkInternalLed(10);
-//both buttons pressed - initiate reset and set channel number
+//both buttons pressed - initiate reset and jump to choosing channel number
  if((!(digitalRead(SW2)))&&(!(digitalRead(SW1)))) { 
                 SetI(25);  //nothing dangerous - safe low current for settings
                 chan=1;
